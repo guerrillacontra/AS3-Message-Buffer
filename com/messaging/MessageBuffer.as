@@ -193,6 +193,8 @@ package com.messaging
 			{
 				message._next._previous = message._previous;
 			}
+			
+			 message._next = message._previous = null;
 		}
 		
 		[Inline]
