@@ -113,3 +113,41 @@ We can take the previous example a step further by adding object pooling
 
 By overriding the ```onMessageRemoved``` callback we can provide custom behaviour
 and in this situation, recycle a pooled message automatically.
+
+##Advanced example with a functional processor
+
+The above example can also be written with a functional processor, very useful
+for simple processors.
+
+```
+			var pool:ObjectPool = new ObjectPool(1);
+			
+			var buffer:MessageBuffer = new MessageBuffer();
+			
+			buffer.onMessageRemoved = function(m:BaseMessage):void
+			{
+				if (pool.isFromPool(m))
+				{
+					pool.recycle(m);
+				}
+				
+			};
+			
+			stage.addEventListener(Event.ENTER_FRAME, function(e:Event):void
+				{
+					buffer.update();
+				});
+			
+			
+			var onAttacked:Function = function(m:EnemyHurtMessage):void
+			{
+			   trace("Ouch I have been hurt " + m.damage);
+			};
+			
+			buffer.registerProcessor(new FunctionalMessageProcessor(EnemyHurtMessage, onAttacked));
+			
+			var testMsg:EnemyHurtMessage = pool.fetch(EnemyHurtMessage);
+			testMsg.damage = 10;
+			
+			buffer.enqueue(testMsg);
+```
